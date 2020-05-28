@@ -8,6 +8,8 @@
 
 // Create AsyncWebServer object on port 80
 AsyncWebServer appServer(80);
+int _netActivityLed;                // the pin connected to LED indicating network activity
+bool _netActivityLedLogic=true;    // false if the LED is ON on HIGH level, true if ON on LOW level.
 
 
 // Constructor(s)
@@ -49,6 +51,7 @@ int WebApp::initWebServer(){
 
   // For URL not registerd re-route to SPIFS static pages
   appServer.onNotFound( [](AsyncWebServerRequest *request){
+    _setNetActifityLed(HIGH);
     String logline="##[STATIC] :";
     // Process URL
     String url=request->url();
@@ -77,6 +80,7 @@ int WebApp::initWebServer(){
       logline+="- ";
     }
     Serial.println(logline);
+    _setNetActifityLed(LOW);
   });
   DEBUG ("BASIC WEB SERVER CONFIGURED");
   }

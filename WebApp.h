@@ -31,14 +31,10 @@
   private:
     static int _processStaticURL ();
     
-    void _setNetActifityLed(bool s);
-    int _netActivityLed;                // the pin connected to LED indicating network activity
-    bool _netActivityLedLogic=true;    // false if the LED is ON on HIGH level, true if ON on LOW level.
+    static void _setNetActifityLed(bool s);
 
     static bool _Fileexists(FS &fs,const char* path);
     static bool _Fileexists(FS &fs,const String& path){return _Fileexists(fs,path.c_str()); }
-
-
   };
 
 #endif
