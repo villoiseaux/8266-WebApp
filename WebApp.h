@@ -29,12 +29,15 @@
 
     static String getContentType(String filename);
   private:
-    static int _processStaticURL ();
     
     static void _setNetActifityLed(bool s);
 
     static bool _Fileexists(FS &fs,const char* path);
     static bool _Fileexists(FS &fs,const String& path){return _Fileexists(fs,path.c_str()); }
+
+    static void _fwUpdate (AsyncWebServerRequest *request);
+    static void _wifiUpdate (AsyncWebServerRequest *request);
+
   };
 
 #endif

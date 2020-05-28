@@ -35,21 +35,38 @@ bool _netActivityLedLogic=true;    // false if the LED is ON on HIGH level, true
 // publics methods
 int WebApp::initWifi(){
   DEBUG("Connect to Wifi");
-  
+  //WiFi.setmode(mode])
   WiFi.begin();  
-  while (WiFi.status() != WL_CONNECTED) {
+  int loopcount=0;
+  while (loopcount < 20 && WiFi.status() != WL_CONNECTED) {
     delay(500);
     _setNetActifityLed(HIGH);
     delay(500);
     _setNetActifityLed(LOW);
+    loopcount++;
   }
-  DEBUG ("Wifi connected");
-  DEBUGVAL (WiFi.localIP());
+  if (WiFi.status() == WL_CONNECTED) {
+    DEBUG ("Wifi connected");
+    DEBUGVAL (WiFi.localIP());
+    return (true);
+  } else {
+    boolean result = WiFi.softAP("ESPsoftAP_01", "pass-to-soft-AP");
+    if(result == true){
+      DEBUG("AP Ready");
+      DEBUGVAL(WiFi.softAPIP());
+    } else {
+      DEBUG("AP Failed!");
+    }    
+  }
 }
 
 int WebApp::initWebServer(){
 
   // For URL not registerd re-route to SPIFS static pages
+  DEBUG ("Register hooks");
+  appServer.on("/fwupdt", HTTP_POST, _fwUpdate);
+  appServer.on("/wlupdt", HTTP_POST, _wifiUpdate);
+
   appServer.onNotFound( [](AsyncWebServerRequest *request){
     _setNetActifityLed(HIGH);
     String logline="##[STATIC] :";
@@ -70,7 +87,7 @@ int WebApp::initWebServer(){
     } else {
     // OR THIS IS REALY A 404
       logline+="404 ";
-      request->send(404,"text/plain","404 hé ho");
+      request->send(SPIFFS, "/404.html", getContentType("/404.html"));
     }
     // END OF LOGS
     if (request->hasHeader("User-Agent")){
@@ -82,6 +99,7 @@ int WebApp::initWebServer(){
     Serial.println(logline);
     _setNetActifityLed(LOW);
   });
+
   DEBUG ("BASIC WEB SERVER CONFIGURED");
   }
 
@@ -119,6 +137,22 @@ bool WebApp::_Fileexists(FS &fs,const char* path){
   return (f == true) && !f.isDirectory();
 }
 
-int WebApp::_processStaticURL (){
-  return (true);
+
+void WebApp::_fwUpdate (AsyncWebServerRequest *request){
+  DEBUG("FIRMWARE UPDATE");
+}
+
+void WebApp::_wifiUpdate (AsyncWebServerRequest *request){
+  DEBUG("WIFI UPDATE");
+  String url="wifiupdate.html";
+  DEBUGVAL(request->arg("ssid"));
+  
+  request->send(SPIFFS, "/wifiupdate.html", getContentType("/wifiupdate.html"));  
+
+  unsigned long t=millis();
+  ESP.wdtDisable();
+  while (millis()<(t+2000)) {
+   
+  }
+  WiFi.begin(request->arg("ssid"),request->arg("pwd"));  
 }
