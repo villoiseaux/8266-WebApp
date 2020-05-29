@@ -18,25 +18,32 @@
     #define DEBUGHEXVAL(value) {} 
   #endif  
 
+
+enum  timestatus {NOT_CONNECTED, IN_PROGRESS, CONNECTED, CONNECTION_LOST};
+
   class WebApp {
   public:
-    WebApp();
+    WebApp(String appName, String appversion="NA");
     ~WebApp();
 
     int initWifi();
+    int setTimeFromInternet();
     int initWebServer();
     int run();
-
+    // Acessors
+    bool isConnectedToInternet ();
     static String getContentType(String filename);
   private:
-    
     static void _setNetActifityLed(bool s);
 
     static bool _Fileexists(FS &fs,const char* path);
     static bool _Fileexists(FS &fs,const String& path){return _Fileexists(fs,path.c_str()); }
 
-    static void _fwUpdate (AsyncWebServerRequest *request);
+    static void _doUpdate(AsyncWebServerRequest *request, const String& filename, size_t index, uint8_t *data, size_t len, bool final);
     static void _wifiUpdate (AsyncWebServerRequest *request);
+// API functions
+    static void _api_getver (AsyncWebServerRequest *request);
+    static void _api_gettime (AsyncWebServerRequest *request);
 
   };
 

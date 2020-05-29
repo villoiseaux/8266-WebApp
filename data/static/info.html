@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Simple Web App</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" href="favicon.ico">
+  <link rel="stylesheet" type="text/css" href="style.css">
+</head>
+<body>
+  <h1>System information</h1>
+  <p>Aplication ID</p>
+  <p id="appid" class="data"><img src="/images/spin.gif"/></p>
+  <p>Firmware version</p>
+  <p id="version" class="data"><img src="/images/spin.gif"/></p>
+  <p>BuildNo</p>
+  <p id="build" class="data"><img src="/images/spin.gif"/></p>
+  <p>Uptime (s)</p>
+  <p id="uptime" class="data"><img src="/images/spin.gif"/></p>
+  <p>Internet ISO Time (UTC)</p>
+  <p id="date" class="data"><img src="/images/spin.gif"/></p>
+  <p>Update the firmware</p>
+  <p><a href="/updatefw.html"><button class="button button2">Update</button></a></p>
+
+<pre>
+GNU GENERAL PUBLIC LICENSE Version 3, 29 June 2007
+</pre>
+<script>
+document.onload = init();
+
+function init() {
+  var xhttp = new XMLHttpRequest();
+  xhttp.onreadystatechange = function() {
+    
+    if (this.readyState == 4 && this.status == 200) {
+	  var json = JSON.parse(this.responseText);
+      document.getElementById("appid").innerHTML = json.appid;
+      document.getElementById("version").innerHTML = json.version;
+      document.getElementById("build").innerHTML = json.buildno;
+    }
+  };
+  xhttp.open("GET", "/api/getver", true);
+  xhttp.send();
+  update();
+  setInterval(update,500);
+}
+
+function update() {
+  var xhttp = new XMLHttpRequest();
+  xhttp.onreadystatechange = function() {
+    
+    if (this.readyState == 4 && this.status == 200) {
+	  var json = JSON.parse(this.responseText);
+      document.getElementById("uptime").innerHTML = Math.round(json.uptime/1000);
+      document.getElementById("date").innerHTML = json.isodate;
+    }
+  };
+  xhttp.open("GET", "/api/gettime", true);
+  xhttp.send();
+}
+</script>
+</body>
+</html>

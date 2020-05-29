@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>ESP8266 Web Server</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" href="favicon.ico">
+  <link rel="stylesheet" type="text/css" href="style.css">
+</head>
+<body>
+  <h1>Firmware Update</h1>
+  <form method='POST' action='/doUpdate' enctype='multipart/form-data'>
+	<input type='file' name='update'class="plike"><br><br>
+	<input type='submit' value='Update' class="button">
+  </form>
+</body>
+</html>
