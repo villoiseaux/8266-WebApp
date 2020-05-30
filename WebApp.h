@@ -44,7 +44,7 @@ enum  timestatus {NOT_CONNECTED, IN_PROGRESS, CONNECTED, CONNECTION_LOST};
 // API functions
     static void _api_getver (AsyncWebServerRequest *request);
     static void _api_gettime (AsyncWebServerRequest *request);
-
+    static void _api_get_ssid_list (AsyncWebServerRequest *request);
   };
 
 #endif
