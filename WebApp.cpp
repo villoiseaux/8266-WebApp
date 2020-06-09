@@ -19,6 +19,8 @@ String _buildNo;
 bool _connectedToInternet;
 timestatus _internetTime;
 
+
+
 // Constructor(s)
 
 WebApp::WebApp(String appName, String appversion){
@@ -153,7 +155,7 @@ int WebApp::initWebServer(){
     Serial.println(logline);
     _setNetActifityLed(LOW);
   });
-
+  _scanAndSort();
   DEBUG ("BASIC WEB SERVER CONFIGURED");
   }
 
@@ -291,12 +293,38 @@ void WebApp::_api_gettime (AsyncWebServerRequest *request){
 }
 
 void WebApp::_api_get_ssid_list (AsyncWebServerRequest *request){
-    String json = "{\"list\":[";
-    int n = WiFi.scanComplete();
-    if(n == -2){
+    request->send(200, "application/json", _scanAndSort());
+}
+
+// Accessors
+bool WebApp::isConnectedToInternet () {
+  return _connectedToInternet;
+}
+
+
+
+
+
+/* Scan available networks and sort them in order to their signal strength. */
+String WebApp::_scanAndSort() {
+   String json = "[";
+   int n = WiFi.scanComplete();
+   if(n == -2){
       WiFi.scanNetworks(true);
     } else if(n){
-      for (int i = 0; i < n; ++i){
+      int indices[n];
+      for (int i = 0; i < n; i++) 
+          indices[i] = i;
+      for (int i = 0; i < n; i++) {
+        for (int j = i + 1; j < n; j++) {
+          if (WiFi.RSSI(indices[j]) > WiFi.RSSI(indices[i])) {
+            std::swap(indices[i], indices[j]);
+          }
+        }
+      }    
+      
+      for (int c = 0; c < n; c++){
+        int i=indices[c];
         if(i) json += ",";
         json += "{";
         json += "\"rssi\":"+String(WiFi.RSSI(i));
@@ -304,7 +332,6 @@ void WebApp::_api_get_ssid_list (AsyncWebServerRequest *request){
         json += ",\"bssid\":\""+WiFi.BSSIDstr(i)+"\"";
         json += ",\"channel\":"+String(WiFi.channel(i));
         json += ",\"secure\":"+String(WiFi.encryptionType(i));
-        json += ",\"hidden\":"+String(WiFi.isHidden(i)?"true":"false");
         json += "}";
       }
       WiFi.scanDelete();
@@ -312,16 +339,63 @@ void WebApp::_api_get_ssid_list (AsyncWebServerRequest *request){
         WiFi.scanNetworks(true);
       }
     }
-    json += "],\"count\":";
-    json+=String(n==-2?0:n);
-    json += ",\"status\":";
-    json += String(n>0?1:n);
-    json+="}";
-    request->send(200, "text/json", json);
-    json = String();
+    json += "]";
+    DEBUG ("Wifi list done");
+    return (json); 
 }
+/*  int n = WiFi.scanNetworks();
+ 
+  String json ="{";
+  if (n == 0) {
+    json+="\"count\":0";
+  } else {
+    json+="\"count\":";
+    json+=String (n);
+    json+=",\"list\":[";
+    int indices[n];
+    for (int i = 0; i < n; i++) {
+          indices[i] = i;
+        }
+        for (int i = 0; i < n; i++) {
+          for (int j = i + 1; j < n; j++) {
+            if (WiFi.RSSI(indices[j]) > WiFi.RSSI(indices[i])) {
+              std::swap(indices[i], indices[j]);
+            }
+          }
+        }
 
-// Accessors
-bool WebApp::isConnectedToInternet () {
-  return _connectedToInternet;
-}
+    
+    for (int c = 0; c < n; c++) {
+      if (c) json+=",";
+      json+="{";
+      int i=indices[c];
+      json+="\"ssid\":\"";
+      json+=WiFi.SSID(i);
+      json+="\",";
+      
+      json+="\"rssi\":";
+      json+=WiFi.RSSI(i);
+      json+=",";
+      
+      json+="\"encryption\":";
+      json+=WiFi.encryptionType(i);
+      json+=",";
+
+      //BSSID
+      json+="\"bssid\":\"";
+      json+=WiFi.BSSIDstr(i);
+      json+="\",";
+
+      // channel
+      json+="\"channel\":";
+      json+=WiFi.channel(i);
+
+      json+="}";
+    }
+    json +="]";
+  }
+  json+="}";
+  DEBUGVAL(json);
+  WiFi.scanDelete();
+  return(json);
+}*/

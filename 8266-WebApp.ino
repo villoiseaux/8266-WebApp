@@ -10,7 +10,7 @@
 // Local Includes
 #include "WebApp.h"
 
-WebApp myTestApp("myTestApp","1.1.1");
+WebApp myTestApp("myTestApp","0.1.0");
 
 
 void setup() {
