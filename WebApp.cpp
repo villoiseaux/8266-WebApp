@@ -18,7 +18,7 @@ String _appVersion;
 String _buildNo;
 bool _connectedToInternet;
 timestatus _internetTime;
-
+unsigned updateProgress;
 
 
 // Constructor(s)
@@ -200,6 +200,7 @@ void WebApp::_doUpdate(AsyncWebServerRequest *request, const String& filename, s
     _contentLen = request->contentLength();
     // if filename includes spiffs, update the spiffs partition
     int cmd = U_FLASH;//(filename.indexOf("spiffs") > -1) ? U_SPIFFS : U_FLASH;
+    updateProgress=0;
 #ifdef ESP8266
     Update.runAsync(true);
     if (!Update.begin(_contentLen, cmd)) {
@@ -214,7 +215,8 @@ void WebApp::_doUpdate(AsyncWebServerRequest *request, const String& filename, s
     Update.printError(Serial);
 #ifdef ESP8266
   } else {
-    Serial.printf("Progress: %d%%\n", (Update.progress()*100)/Update.size());
+    updateProgress=(Update.progress()*100)/Update.size();
+    Serial.printf("Progress: %d%%\n", updateProgress);
 #endif
   }
 
@@ -325,7 +327,7 @@ String WebApp::_scanAndSort() {
       
       for (int c = 0; c < n; c++){
         int i=indices[c];
-        if(i) json += ",";
+        if(c) json += ",";
         json += "{";
         json += "\"rssi\":"+String(WiFi.RSSI(i));
         json += ",\"ssid\":\""+WiFi.SSID(i)+"\"";
@@ -343,59 +345,3 @@ String WebApp::_scanAndSort() {
     DEBUG ("Wifi list done");
     return (json); 
 }
-/*  int n = WiFi.scanNetworks();
- 
-  String json ="{";
-  if (n == 0) {
-    json+="\"count\":0";
-  } else {
-    json+="\"count\":";
-    json+=String (n);
-    json+=",\"list\":[";
-    int indices[n];
-    for (int i = 0; i < n; i++) {
-          indices[i] = i;
-        }
-        for (int i = 0; i < n; i++) {
-          for (int j = i + 1; j < n; j++) {
-            if (WiFi.RSSI(indices[j]) > WiFi.RSSI(indices[i])) {
-              std::swap(indices[i], indices[j]);
-            }
-          }
-        }
-
-    
-    for (int c = 0; c < n; c++) {
-      if (c) json+=",";
-      json+="{";
-      int i=indices[c];
-      json+="\"ssid\":\"";
-      json+=WiFi.SSID(i);
-      json+="\",";
-      
-      json+="\"rssi\":";
-      json+=WiFi.RSSI(i);
-      json+=",";
-      
-      json+="\"encryption\":";
-      json+=WiFi.encryptionType(i);
-      json+=",";
-
-      //BSSID
-      json+="\"bssid\":\"";
-      json+=WiFi.BSSIDstr(i);
-      json+="\",";
-
-      // channel
-      json+="\"channel\":";
-      json+=WiFi.channel(i);
-
-      json+="}";
-    }
-    json +="]";
-  }
-  json+="}";
-  DEBUGVAL(json);
-  WiFi.scanDelete();
-  return(json);
-}*/

@@ -12,5 +12,19 @@
 	<input type='file' name='update'class="plike"><br><br>
 	<input type='submit' value='Update' class="button">
   </form>
+  <p id="progress">not started</p>
+</body>
+<script>
+document.onload = init();
+
+function init() {
+  update();
+  setInterval(update,500);
+}
+
+function update() {
+   console.log ("update");
+}
+</script>
 </body>
 </html>
