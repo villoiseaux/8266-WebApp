@@ -52,12 +52,13 @@ int WebApp::initWifi(){
   WiFi.mode(WIFI_STA); 
   WiFi.begin();  
   int loopcount=0;
-  while (loopcount < 20 && WiFi.status() != WL_CONNECTED) {
+  while (loopcount < 20 && WiFi.status() != WL_CONNECTED && WiFi.status() != WL_NO_SSID_AVAIL) {
     delay(500);
     _setNetActifityLed(HIGH);
     delay(500);
     _setNetActifityLed(LOW);
     loopcount++;
+    DEBUGVAL(WlStatusToStr(WiFi.status()));
   }
   if (WiFi.status() == WL_CONNECTED) {
     DEBUG ("Wifi connected");
@@ -344,4 +345,21 @@ String WebApp::_scanAndSort() {
     json += "]";
     DEBUG ("Wifi list done");
     return (json); 
+}
+
+
+const char* WebApp::WlStatusToStr(wl_status_t wlStatus)
+{
+  switch (wlStatus)
+  {
+  case WL_NO_SHIELD: return "WL_NO_SHIELD";
+  case WL_IDLE_STATUS: return "WL_IDLE_STATUS";
+  case WL_NO_SSID_AVAIL: return "WL_NO_SSID_AVAIL";
+  case WL_SCAN_COMPLETED: return "WL_SCAN_COMPLETED";
+  case WL_CONNECTED: return "WL_CONNECTED";
+  case WL_CONNECT_FAILED: return "WL_CONNECT_FAILED";
+  case WL_CONNECTION_LOST: return "WL_CONNECTION_LOST";
+  case WL_DISCONNECTED: return "WL_DISCONNECTED";
+  default: return "Unknown";
+  }
 }

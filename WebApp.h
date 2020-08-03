@@ -43,6 +43,8 @@ enum  timestatus {NOT_CONNECTED, IN_PROGRESS, CONNECTED, CONNECTION_LOST};
     static void _wifiUpdate (AsyncWebServerRequest *request);
 
     static String _scanAndSort();
+    // tools
+    const char* WlStatusToStr(wl_status_t wlStatus);
     
 // API functions
     static void _api_getver (AsyncWebServerRequest *request);
