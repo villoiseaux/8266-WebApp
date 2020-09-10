@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>ESP8266 Web Server</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <link rel="icon" href="favicon.ico">
+  <link rel="stylesheet" type="text/css" href="style.css">
+</head>
+<body>
+<h1>Cloud configuration</h1>
+<h2>MQTT</h2>
+<form action="/wlupdt" method="post" accept-charset="UTF-8">
+  <label for="fname">Server</label><br>
+  <input type="input" name="server" ><br><br>  
+  <label for="fname">Username</label><br>
+  <input type="input" name="user" ><br><br>  
+  <label for="lname">password</label><br>
+  <input type="password" name="pwd" ><br><br>  
+  <label for="fname">Security</label><br>
+  <input type="checkbox" id="secure" name="tls" checked>  <label for="fname">tls</label><br>
+  <input type="checkbox" id="authuser" name="authuser" checked>  <label for="fname">User authentification</label><br>
+  <input type="checkbox" id="authuser" name="authcert" >  <label for="fname">Client certificate authentification</label><br>
+  <input type="submit" value="TEST" class="button"><br>
+  <input type="submit" value="CHANGE" class="button">
+</form> 
+<script>
+document.onload = init();
+
+
+function init() {
+	alert("Page under construction");
+}
+
+</script>
+</body>
+</html>
