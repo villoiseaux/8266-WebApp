@@ -12,6 +12,11 @@
 AsyncWebServer appServer(80);
 int _netActivityLed;                // the pin connected to LED indicating network activity
 bool _netActivityLedLogic=true;    // false if the LED is ON on HIGH level, true if ON on LOW level.
+namespace buttonMgt {
+  enum  buttonStatus {up=false, down=true};
+  int _resetButtonPin=0;
+  bool _resetButtonLogic=false;      // signal low when button pushed
+}
 size_t _contentLen;
 String _appName;
 String _appVersion;
@@ -52,21 +57,34 @@ int WebApp::initWifi(){
   WiFi.mode(WIFI_STA); 
   WiFi.begin();  
   int loopcount=0;
+  unsigned long m=millis();
   while (loopcount < 20 && WiFi.status() != WL_CONNECTED && WiFi.status() != WL_NO_SSID_AVAIL) {
-    delay(500);
-    _setNetActifityLed(HIGH);
-    delay(500);
-    _setNetActifityLed(LOW);
-    loopcount++;
-    DEBUGVAL(WlStatusToStr(WiFi.status()));
+    delay (100);
+    if ((millis()%1000)<500){
+      _setNetActifityLed(HIGH);
+    } else {
+      _setNetActifityLed(LOW);
+    }
+    if (_getButtonStatus()==false){
+      DEBUG("FORCE WIFI RESET");
+      loopcount=-1;
+      break;
+    }   
+    if (millis()>(m+1000)) {
+      loopcount++;
+      DEBUGVAL(WlStatusToStr(WiFi.status()));
+      m=millis();
+    }
   }
-  if (WiFi.status() == WL_CONNECTED) {
+  if ((loopcount!=-1) && (WiFi.status() == WL_CONNECTED)) {
+    _setNetActifityLed(LOW);
     DEBUG ("Wifi connected");
     DEBUGVAL (WiFi.localIP());
     _connectedToInternet=true;
     return (true);
   } else {
     WiFi.mode(WIFI_AP); 
+    _setNetActifityLed(HIGH);
     boolean result = WiFi.softAP("ESPsoftAP_01", "pass-to-soft-AP");
     if(result == true){
       DEBUG("AP Ready");
@@ -93,7 +111,10 @@ int WebApp::setTimeFromInternet(){
       DEBUG("Ajust time");
       time_t now = time(0);
       while(now < 86400) {
-        delay(1000);
+        delay(980);
+        _setNetActifityLed(HIGH);
+        delay(20);
+        _setNetActifityLed(LOW);
         DEBUG("Ajusting in progress");
         now = time(0);
       }
@@ -186,6 +207,10 @@ String WebApp::getContentType(String filename){
 
 void WebApp::_setNetActifityLed(bool s){
   digitalWrite(_netActivityLed,s ^ _netActivityLedLogic);
+}
+
+bool WebApp::_getButtonStatus(){
+  return ((digitalRead(buttonMgt::_resetButtonPin)^buttonMgt::_resetButtonLogic)==true); 
 }
 
 

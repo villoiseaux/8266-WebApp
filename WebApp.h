@@ -35,6 +35,7 @@ enum  timestatus {NOT_CONNECTED, IN_PROGRESS, CONNECTED, CONNECTION_LOST};
     static String getContentType(String filename);
   private:
     static void _setNetActifityLed(bool s);
+    static bool _getButtonStatus();
 
     static bool _Fileexists(FS &fs,const char* path);
     static bool _Fileexists(FS &fs,const String& path){return _Fileexists(fs,path.c_str()); }
