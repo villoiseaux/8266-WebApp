@@ -28,6 +28,7 @@ enum  timestatus {NOT_CONNECTED, IN_PROGRESS, CONNECTED, CONNECTION_LOST};
 
     int initWifi();
     int setTimeFromInternet();
+    int setAPCreds(String ssid, String key);
     int initWebServer();
     int run();
     // Acessors

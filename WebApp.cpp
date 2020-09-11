@@ -10,6 +10,10 @@
 
 // Create AsyncWebServer object on port 80
 AsyncWebServer appServer(80);
+
+// Global variables in order to be used in static methods.
+// This is necessary for call back based HTTP server
+
 int _netActivityLed;                // the pin connected to LED indicating network activity
 bool _netActivityLedLogic=true;    // false if the LED is ON on HIGH level, true if ON on LOW level.
 namespace buttonMgt {
@@ -21,6 +25,8 @@ size_t _contentLen;
 String _appName;
 String _appVersion;
 String _buildNo;
+String _ap_ssid;
+String _ap_key;
 bool _connectedToInternet;
 timestatus _internetTime;
 unsigned updateProgress;
@@ -45,6 +51,8 @@ WebApp::WebApp(String appName, String appversion){
     _buildNo=String(__DATE__)+"@"+String(__TIME__);
     _connectedToInternet=false;
     _internetTime=NOT_CONNECTED;
+    _ap_ssid=_appName;
+    _ap_key="";
 } 
      
 // destructor
@@ -52,6 +60,12 @@ WebApp::WebApp(String appName, String appversion){
     WebApp::~WebApp(){}
 
 // publics methods
+
+int WebApp::setAPCreds(String ssid, String key){
+  _ap_ssid=ssid;
+  _ap_key=key;
+}
+
 int WebApp::initWifi(){
   DEBUG("Connect to Wifi");
   WiFi.mode(WIFI_STA); 
@@ -85,7 +99,8 @@ int WebApp::initWifi(){
   } else {
     WiFi.mode(WIFI_AP); 
     _setNetActifityLed(HIGH);
-    boolean result = WiFi.softAP("ESPsoftAP_01", "pass-to-soft-AP");
+    
+    boolean result = WiFi.softAP(_ap_ssid,_ap_key);
     if(result == true){
       DEBUG("AP Ready");
       DEBUGVAL(WiFi.softAPIP());

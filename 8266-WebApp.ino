@@ -14,6 +14,7 @@ WebApp myTestApp("myTestApp","0.1.0");
 
 
 void setup() {
+  myTestApp.setAPCreds("toto","tata1234");
   myTestApp.initWifi();
   myTestApp.initWebServer();
   myTestApp.run();
